@@ -1,6 +1,8 @@
-# Escola GraphQL API
+# Escola GraphQL API (Read-Only)
 
-API GraphQL construída em Node.js (ESM) com [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), pronta para execução em Docker e deploy em plataformas como Render.
+API GraphQL construída em Node.js (ESM) com [GraphQL Yoga](https://the-guild.dev/graphql/yoga-server), pronta para execução em Docker e deploy no Render.
+
+> **Modo Somente Leitura:** Esta API foi configurada exclusivamente para consultas de listagem e leitura. Não possui mutações (`addStudent` / `removeStudent` foram removidos), garantindo que dados fictícios não possam ser alterados ou deletados.
 
 ---
 
@@ -8,14 +10,12 @@ API GraphQL construída em Node.js (ESM) com [GraphQL Yoga](https://the-guild.de
 
 ### Com Docker (Recomendado)
 
-Suba o container com build automático:
-
 ```bash
 docker compose up --build
 ```
 
-A API estará disponível em:
-**http://localhost:4000/graphql** (com playground interativo GraphiQL integrado)
+Acesse o playground interativo (GraphiQL) em:
+**http://localhost:4000/graphql**
 
 Para parar a execução:
 ```bash
@@ -43,14 +43,12 @@ docker compose down
 
 ---
 
-## 📋 Exemplos de Uso
+## 📋 Consultas Disponíveis (Queries)
 
-Acesse **http://localhost:4000/graphql** no navegador ou envie requisições HTTP `POST` para o endpoint.
-
-### 1. Consultar todos os alunos com os dados do curso
+### 1. Consultar todos os alunos com dados do curso
 
 ```graphql
-query ListStudents {
+query {
   students {
     id
     name
@@ -67,7 +65,7 @@ query ListStudents {
 ### 2. Consultar cursos e seus alunos matriculados
 
 ```graphql
-query ListCoursesWithStudents {
+query {
   courses {
     id
     name
@@ -84,7 +82,7 @@ query ListCoursesWithStudents {
 ### 3. Consultar professores e seus cursos
 
 ```graphql
-query ListTeachers {
+query {
   teachers {
     id
     name
@@ -100,7 +98,7 @@ query ListTeachers {
 ### 4. Consultar aluno por ID
 
 ```graphql
-query GetStudentById {
+query {
   student(id: "1") {
     id
     name
@@ -112,39 +110,36 @@ query GetStudentById {
 }
 ```
 
-### 5. Adicionar um novo aluno (Mutation)
-
-```graphql
-mutation CreateStudent {
-  addStudent(
-    name: "Carolina Ferreira"
-    email: "carolina.ferreira@email.com"
-    courseId: "1"
-  ) {
-    id
-    name
-    email
-    course {
-      id
-      name
-    }
-  }
-}
-```
-
-### 6. Remover um aluno por ID (Mutation)
-
-```graphql
-mutation DeleteStudent {
-  removeStudent(id: "1")
-}
-```
-
 ---
 
-## 🌐 Consumo no Front-end (Exemplo com Fetch API)
+## 🌐 Consumo no Front-end
 
-Como o CORS está liberado para todas as origens (`*`), alunos podem consumir a API diretamente de qualquer frontend (React, Vue, Angular, vanilla JS):
+Como o CORS está liberado (`*`), você pode consumir a API tanto via **GET** (passando a query na URL) quanto via **POST** (no body JSON).
+
+### Exemplo 1: Via método HTTP `GET`
+
+```javascript
+const query = encodeURIComponent(`
+  query {
+    students {
+      id
+      name
+      course {
+        name
+      }
+    }
+  }
+`);
+
+const response = await fetch(`http://localhost:4000/graphql?query=${query}`, {
+  method: "GET"
+});
+
+const { data } = await response.json();
+console.log(data.students);
+```
+
+### Exemplo 2: Via método HTTP `POST`
 
 ```javascript
 const response = await fetch("http://localhost:4000/graphql", {
@@ -175,12 +170,9 @@ console.log(data.students);
 
 ## ☁️ Deploy no Render
 
-Esta API está pronta para ser publicada no **Render** (Web Service, plano Free):
-
-- **Build Command:** `npm ci --omit=dev`
-- **Start Command:** `npm start`
-- Ou escolha deploy via **Docker** apontando para o repositório contendo o `Dockerfile`.
-- O servidor detecta automaticamente a porta atribuída pelo Render através da variável de ambiente `PORT` (com fallback para `4000`).
+- **Runtime:** `Docker` (ou `Node` com `npm start`)
+- Não requer nenhuma variável de ambiente manual. A porta é detectada automaticamente via `process.env.PORT`.
+- CORS liberado para qualquer origem (`*`).
 
 ---
 
@@ -192,16 +184,14 @@ Esta API está pronta para ser publicada no **Render** (Web Service, plano Free)
 ├── docker-compose.yml
 ├── .dockerignore
 ├── package.json
-├── package-lock.json
 ├── README.md
 └── src/
     ├── data/
-    │   └── index.js          # Dados fictícios em memória
+    │   └── index.js          # Dados imutáveis em memória
     ├── schema/
-    │   ├── schema.graphql    # Definição do schema GraphQL (SDL)
-    │   └── index.js          # Leitor do schema
+    │   ├── schema.graphql    # Schema GraphQL somente leitura (sem Mutations)
+    │   └── index.js          # Loader do schema
     ├── resolvers/
-    │   └── index.js          # Resolvers de Queries, Mutations e Tipos
-    └── server.js             # Bootstrap do servidor GraphQL Yoga
+    │   └── index.js          # Resolvers de consultas e relações
+    └── server.js             # Bootstrap do Yoga com CORS aberto
 ```
-

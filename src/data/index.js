@@ -1,4 +1,4 @@
-export const courses = [
+export const courses = Object.freeze([
   {
     id: '1',
     name: 'Desenvolvimento Web Full Stack',
@@ -14,9 +14,9 @@ export const courses = [
     name: 'Design de Interface e Experiência (UI/UX)',
     credits: 40
   }
-];
+]);
 
-export const teachers = [
+export const teachers = Object.freeze([
   {
     id: '1',
     name: 'Prof. Carlos Silva',
@@ -27,9 +27,9 @@ export const teachers = [
     name: 'Profa. Ana Pereira',
     courseIds: ['1', '3']
   }
-];
+]);
 
-export const students = [
+export const students = Object.freeze([
   {
     id: '1',
     name: 'Lucas Santos',
@@ -66,5 +66,4 @@ export const students = [
     email: 'juliana.rocha@email.com',
     courseId: '3'
   }
-];
-
+]);

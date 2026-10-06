@@ -26,9 +26,3 @@ type Query {
   teachers: [Teacher!]!
   teacher(id: ID!): Teacher
 }
-
-type Mutation {
-  addStudent(name: String!, email: String!, courseId: ID!): Student!
-  removeStudent(id: ID!): Boolean!
-}
-
