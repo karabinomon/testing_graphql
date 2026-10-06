@@ -1,0 +1,34 @@
+type Student {
+  id: ID!
+  name: String!
+  email: String!
+  course: Course
+}
+
+type Course {
+  id: ID!
+  name: String!
+  credits: Int!
+  students: [Student!]!
+}
+
+type Teacher {
+  id: ID!
+  name: String!
+  courses: [Course!]!
+}
+
+type Query {
+  students: [Student!]!
+  student(id: ID!): Student
+  courses: [Course!]!
+  course(id: ID!): Course
+  teachers: [Teacher!]!
+  teacher(id: ID!): Teacher
+}
+
+type Mutation {
+  addStudent(name: String!, email: String!, courseId: ID!): Student!
+  removeStudent(id: ID!): Boolean!
+}
+
